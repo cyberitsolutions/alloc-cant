@@ -43,4 +43,4 @@ def main():
               'username': args.store.get_decrypted_password('alloc.cyber.com.au', entry=pypass.EntryType.username),
               'password': args.store.get_decrypted_password('alloc.cyber.com.au', entry=pypass.EntryType.password)})
     resp.raise_for_status()
-    print(resp.json())
+    print(resp.text)
