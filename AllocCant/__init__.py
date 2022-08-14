@@ -1,5 +1,6 @@
 import argparse
 import datetime
+from getpass import getuser as whoami
 
 
 import pypass
@@ -40,7 +41,10 @@ def main():
     resp = requests.get(
         args.url,
         data={'authenticate': True,
-              'username': args.store.get_decrypted_password('alloc.cyber.com.au', entry=pypass.EntryType.username),
-              'password': args.store.get_decrypted_password('alloc.cyber.com.au', entry=pypass.EntryType.password)})
+              'username': whoami(),
+              'password': args.store.get_decrypted_password(
+                  f'{whoami()}@alloc.cyber.com.au',
+                  entry=pypass.EntryType.password),
+              })
     resp.raise_for_status()
     print(resp.text)
