@@ -11,6 +11,8 @@ def main():
     args = parse_args()
     shit_login(args)
     print(shit_request(args, method='get_tfid'))
+    print(shit_request(args, method='get_timeSheetItem_comments', taskID=12345))
+    # print(shit_request(args, method='get_list', entity='task', ))
 
 
 def parse_args():
