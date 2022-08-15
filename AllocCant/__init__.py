@@ -55,23 +55,29 @@ def login(args):
     # If login worked, we get redirected to /home/home.php.
     if resp.url == login_url:
         raise RuntimeError('bad username/password?')
-    return resp                 # DEBUGGING
 
 
 # Add {'sessID': 'deadbeefdeadbeefdeadbeefdeadbeef'} to args.session_data.
 def shit_login(args):
-    args.url = 'https://alloc.cyber.com.au/services/json.php'
+    data = shit_request(args,
+        authenticate=True,
+        username=getpass.getuser(),
+        password=args.store.get_decrypted_password(
+            f'{getpass.getuser()}@alloc.cyber.com.au',
+            entry=pypass.EntryType.password))
+    if 'sessID' not in data:
+        raise RuntimeError('Did not get session ID pseudo-cookie?', data)
+    args.session_data |= data
+
+
+def shit_request(args, **kwargs) -> dict:
     resp = args.sess.post(
-        args.url,
-        data={
-            'authenticate': True,
-            'client_version': '1.8.9',
-            'username': getpass.getuser(),
-            'password': args.store.get_decrypted_password(
-                f'{getpass.getuser()}@alloc.cyber.com.au',
-                entry=pypass.EntryType.password)})
+        'https://alloc.cyber.com.au/services/json.php',
+        data=args.session_data | kwargs)
     resp.raise_for_status()
     # https://github.com/cyberitsolutions/alloc/blob/master/services/json.php#L23-L24
     if resp.text == 'Your alloc client needs to be upgraded.':
         raise RuntimeError(resp.text)
-    args.session_data |= resp.json()
+    if not resp.text.strip():
+        raise RuntimeError('Empty response???')
+    return resp.json()
