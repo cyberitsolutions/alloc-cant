@@ -10,6 +10,7 @@ import simplejson
 def main():
     args = parse_args()
     shit_login(args)
+    print(shit_request(args, method='get_tfid'))
 
 
 def parse_args():
