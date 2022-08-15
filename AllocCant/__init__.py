@@ -1,5 +1,9 @@
 import argparse
 import getpass
+import pathlib
+import subprocess
+import sys
+import tempfile
 
 import pypass
 import requests
@@ -10,9 +14,11 @@ import simplejson
 def main():
     args = parse_args()
     shit_login(args)
-    print(shit_request(args, method='get_tfid'))
-    print(shit_request(args, method='get_timeSheetItem_comments', taskID=12345))
-    # print(shit_request(args, method='get_list', entity='task', ))
+    # print(shit_request(args, method='get_tfid'))
+    # print(shit_request(args, method='get_timeSheetItem_comments', taskID=12345))
+    # print(shit_request(args, method='get_task_emails', entity='task', taskID=12345))
+    # print(shit_request(args, method='get_list', entity='task', taskID=12345))
+    mbox(args, 12345)
 
 
 def parse_args():
@@ -94,3 +100,16 @@ def shit_request(args, **kwargs) -> dict:
         #  * Fatal error: Call to private method services::get_current_user() from context '' in /var/www/alloc/services/json.php on line 73
         #    Happens when 'method' is 'get_current_user' (which is 'private function' not 'public function').
         raise RuntimeError('PHP said', resp.text.strip())
+
+
+# Equivalent of "bts show -m 12345".
+def mbox(args, taskID: int):
+    mbox_text = shit_request(args, method='get_task_emails', entity='task', taskID=taskID)
+    if not sys.stdout.isatty():
+        # "alloc mbox >tmp.mbox" or "alloc mbox | grep"
+        sys.stdout.write(mbox_text)
+    else:
+        with tempfile.TemporaryDirectory() as td:
+            mbox_path = pathlib.Path(td) / 'tmp.mbox'
+            mbox_path.write_text(mbox_text)
+            subprocess.check_call(['mutt', '-Rf', mbox_path])
