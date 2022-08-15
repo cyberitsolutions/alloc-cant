@@ -8,7 +8,7 @@ import tempfile
 import pypass
 import requests
 import requests.auth
-import simplejson
+import requests.compat
 
 
 def main():
@@ -87,7 +87,7 @@ def shit_request(args, **kwargs) -> dict:
     resp.raise_for_status()
     try:
         return resp.json()
-    except simplejson.errors.JSONDecodeError:
+    except requests.compat.json.JSONDecodeError:  # json OR simplejson!
         # https://github.com/cyberitsolutions/alloc/blob/master/services/json.php#L23-L24
         # https://github.com/cyberitsolutions/alloc/blob/master/services/lib/services.inc.php
         # Examples:
