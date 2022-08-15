@@ -4,6 +4,7 @@ import getpass
 import pypass
 import requests
 import requests.auth
+import simplejson
 
 
 def main():
@@ -75,9 +76,18 @@ def shit_request(args, **kwargs) -> dict:
         'https://alloc.cyber.com.au/services/json.php',
         data=args.session_data | kwargs)
     resp.raise_for_status()
-    # https://github.com/cyberitsolutions/alloc/blob/master/services/json.php#L23-L24
-    if resp.text == 'Your alloc client needs to be upgraded.':
-        raise RuntimeError(resp.text)
-    if not resp.text.strip():
-        raise RuntimeError('Empty response???')
-    return resp.json()
+    try:
+        return resp.json()
+    except simplejson.errors.JSONDecodeError:
+        # https://github.com/cyberitsolutions/alloc/blob/master/services/json.php#L23-L24
+        # https://github.com/cyberitsolutions/alloc/blob/master/services/lib/services.inc.php
+        # Examples:
+        #  * Your alloc client needs to be upgraded.
+        #    Happens when 'client_version' is not set.
+        #  * <empty string>
+        #    Happens when neither 'method' nor 'authenticate' is set.
+        #  * Warning: array_diff(): Argument #1 is not an array in /var/www/alloc/services/lib/services.inc.php on line 102
+        #    Happens when 'method' is set and 'parameters' is not set.
+        #  * Fatal error: Call to private method services::get_current_user() from context '' in /var/www/alloc/services/json.php on line 73
+        #    Happens when 'method' is 'get_current_user' (which is 'private function' not 'public function').
+        raise RuntimeError('PHP said', resp.text.strip())
