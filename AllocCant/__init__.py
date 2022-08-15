@@ -11,16 +11,17 @@ import requests.auth
 import requests.compat
 
 __version__ = '0.0.0'
-__doc__ = """ modern green-field replacement for https://github.com/cyberitsolutions/alloc-cli """
+__doc__ = """ modern green-field replacement for alloc-cli
+
+See also
+
+ • https://github.com/cyberitsolutions/alloc
+ • https://github.com/cyberitsolutions/alloc-cli """
 
 
 def main():
     args = parse_args()
     shit_login(args)
-    # print(shit_request(args, method='get_tfid'))
-    # print(shit_request(args, method='get_timeSheetItem_comments', taskID=12345))
-    # print(shit_request(args, method='get_task_emails', entity='task', taskID=12345))
-    # print(shit_request(args, method='get_list', entity='task', taskID=12345))
     mbox(args, 12345)
 
 
@@ -42,8 +43,9 @@ def parse_args():
 
 
 # <twb> So I can log into alloc and get a session cookie.
-#       But https://github.com/cyberitsolutions/alloc/blob/master/services/json.php#L27 does not support this.
-#       It ONLY supports a sessID passed as a parameter to every single request.
+#       But alloc does not support this.
+#       https://github.com/cyberitsolutions/alloc/blob/master/services/json.php#L27
+#       It ONLY supports sessID as data passed to every single request.
 # <mike> As much as I hate that so much,
 #        it's kinda standard with a lot of REST-like APIs I've worked with.
 # <mattcen> No, I think what would be STANDARD would be
@@ -51,7 +53,8 @@ def parse_args():
 #           Sending it in the content/data seems silly.
 def login(args):
     # Get "alloc_test_cookie=alloc_test_cookie".
-    # The POST will send it, and get back "alloc_cookie=deadbeefdeadbeefdeadbeefdeadbeef"
+    # The POST will send it, and get back
+    #     "alloc_cookie=deadbeefdeadbeefdeadbeefdeadbeef"
     # This avoids needing to get and pass ?sessID=X around forever.
     login_url = 'https://alloc.cyber.com.au/login/login.php'
     resp = args.sess.get(login_url)
@@ -72,7 +75,8 @@ def login(args):
 
 # Add {'sessID': 'deadbeefdeadbeefdeadbeefdeadbeef'} to args.session_data.
 def shit_login(args):
-    data = shit_request(args,
+    data = shit_request(
+        args,
         authenticate=True,
         username=getpass.getuser(),
         password=args.store.get_decrypted_password(
@@ -98,16 +102,23 @@ def shit_request(args, **kwargs) -> dict:
         #    Happens when 'client_version' is not set.
         #  * <empty string>
         #    Happens when neither 'method' nor 'authenticate' is set.
-        #  * Warning: array_diff(): Argument #1 is not an array in /var/www/alloc/services/lib/services.inc.php on line 102
+        #  * Warning: array_diff(): Argument #1 is not an array in
+        #      /var/www/alloc/services/lib/services.inc.php on line 102
         #    Happens when 'method' is set and 'parameters' is not set.
-        #  * Fatal error: Call to private method services::get_current_user() from context '' in /var/www/alloc/services/json.php on line 73
-        #    Happens when 'method' is 'get_current_user' (which is 'private function' not 'public function').
+        #  * Fatal error: Call to private method services::get_current_user()
+        #      from context '' in /var/www/alloc/services/json.php on line 73
+        #    Happens when 'method' is 'get_current_user'
+        #    (which is 'private function' not 'public function').
         raise RuntimeError('PHP said', resp.text.strip())
 
 
 # Equivalent of "bts show -m 12345".
 def mbox(args, taskID: int):
-    mbox_text = shit_request(args, method='get_task_emails', entity='task', taskID=taskID)
+    mbox_text = shit_request(
+        args,
+        method='get_task_emails',
+        entity='task',
+        taskID=taskID)
     if not sys.stdout.isatty():
         # "alloc mbox >tmp.mbox" or "alloc mbox | grep"
         sys.stdout.write(mbox_text)
