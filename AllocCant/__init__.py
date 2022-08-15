@@ -10,6 +10,9 @@ import requests
 import requests.auth
 import requests.compat
 
+__version__ = '0.0.0'
+__doc__ = """ modern green-field replacement for https://github.com/cyberitsolutions/alloc-cli """
+
 
 def main():
     args = parse_args()

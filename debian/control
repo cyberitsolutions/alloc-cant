@@ -1,0 +1,21 @@
+Source: alloc-cant
+Section: web
+Priority: optional
+Maintainer: Trent W. Buck <twb@cyber.com.au>
+Uploaders: Trent W. Buck <trentbuck@gmail.com>
+Build-Depends:
+ debhelper-compat (= 13),
+ dh-sequence-python3,
+ flit,
+ python3-all,
+Standards-Version: 4.3.0
+Rules-Requires-Root: no
+VCS-Git: https://github.com/cyberitsolutions/alloc-cant
+
+Package: alloc-cant
+Architecture: all
+Depends:
+ ${misc:Depends},
+ ${python3:Depends},
+Description: new alloc-cli
+ modern green-field replacement for https://github.com/cyberitsolutions/alloc-cli

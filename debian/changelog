@@ -1,0 +1,5 @@
+alloc-cant (0.0.0) bullseye; urgency=medium
+
+  * Initial implementation
+
+ -- Trent W. Buck <trentbuck@gmail.com>  Mon, 15 Aug 2022 12:34:31 +1000
